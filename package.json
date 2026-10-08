@@ -1,0 +1,28 @@
+{
+  "name": "pediatria",
+  "version": "1.0.0",
+  "description": "Sistema web para la gestión digital de expedientes pediátricos del Departamento de Enfermería de la Universidad Autónoma de Aguascalientes.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xsaxsy/Sistema-Expedientes-Pediatricos-Web.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/xsaxsy/Sistema-Expedientes-Pediatricos-Web/issues"
+  },
+  "homepage": "https://github.com/xsaxsy/Sistema-Expedientes-Pediatricos-Web#readme",
+  "dependencies": {
+    "@neondatabase/serverless": "^1.2.0"
+  }
+}
