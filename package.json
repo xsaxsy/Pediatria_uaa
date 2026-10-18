@@ -17,12 +17,14 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/xsaxsy/Sistema-Expedientes-Pediatricos-Web/issues"
   },
   "homepage": "https://github.com/xsaxsy/Sistema-Expedientes-Pediatricos-Web#readme",
   "dependencies": {
-    "@neondatabase/serverless": "^1.2.0"
+    "@neondatabase/serverless": "^1.2.0",
+    "bcryptjs": "^3.0.3",
+    "jose": "^6.2.12"
   }
 }

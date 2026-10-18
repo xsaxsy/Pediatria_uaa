@@ -1,0 +1,150 @@
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #23436b;
+    background: linear-gradient(135deg, #eff6ff, #f8fbff);
+}
+
+.contenedor-login {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+}
+
+/* Toda la tarjeta */
+.tarjeta-login {
+    width: 100%;
+    max-width: 430px;
+    padding: 32px;
+    background: #ffffff;
+    border: 1px solid #e1ebf7;
+    border-radius: 18px;
+    box-shadow: 0 12px 35px rgba(40, 90, 150, 0.12);
+}
+
+/* Logo centrado */
+
+.logo-login {
+    display: block;
+    width: 175px;
+    height: auto;
+    max-width: 100%;
+    object-fit: contain;
+    margin: 0 auto 4px;
+}
+
+
+.titulo-login {
+    margin: 0;
+    text-align: center;
+    font-size: 1.8rem;
+    line-height: 1.3;
+    color: #234f85;
+}
+
+.subtitulo-login {
+    margin: 10px 0 24px;
+    text-align: center;
+    color: #7185a0;
+    font-size: 0.95rem;
+}
+
+/* Formulario */
+#form-login {
+    width: 100%;
+}
+
+#form-login label {
+    display: block;
+    margin: 18px 0 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+#form-login input {
+    display: block;
+    width: 100%;
+    min-height: 46px;
+    padding: 12px;
+    border: 1px solid #cbd9ea;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+#form-login input:focus {
+    outline: 2px solid #8bbcff;
+    border-color: #367ee8;
+}
+
+#btn-login {
+    width: 100%;
+    min-height: 46px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 8px;
+    background: #2879e8;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#btn-login:hover {
+    background: #1d62c2;
+}
+
+#btn-login:focus-visible {
+    outline: 3px solid #8bbcff;
+    outline-offset: 3px;
+}
+
+/* Mensaje de error */
+#mensaje-error {
+    color: #b42318;
+    font-size: 0.9rem;
+}
+
+/* Registro */
+.registro-login {
+    margin: 24px 0 0;
+    text-align: center;
+    line-height: 1.6;
+    font-size: 0.92rem;
+}
+
+.registro-login a {
+    margin-left: 4px;
+    color: #216ed0;
+    font-weight: 600;
+}
+
+/* Adaptación para celulares */
+@media (max-width: 480px) {
+    .contenedor-login {
+        padding: 16px;
+    }
+
+    .tarjeta-login {
+        padding: 26px 20px;
+        border-radius: 14px;
+    }
+
+    .logo-login {
+        width: 125px;
+        height: auto;
+        margin-bottom: 4px;
+    }
+
+    .titulo-login {
+        font-size: 1.55rem;
+    }
+}
+

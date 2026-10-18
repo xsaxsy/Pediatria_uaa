@@ -1,0 +1,21 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/src/frontend/pages/login.html"
+    },
+    {
+      "source": "/styles/:path*",
+      "destination": "/src/frontend/styles/:path*"
+    },
+    {
+      "source": "/assets/:path*",
+      "destination": "/src/frontend/assets/:path*"
+    },
+    {
+      "source": "/services/:path*",
+      "destination": "/src/frontend/services/:path*"
+    }
+  ]
+}
