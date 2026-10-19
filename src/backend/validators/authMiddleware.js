@@ -1,4 +1,3 @@
-
 import { verificarSesion } from "../services/sessionService.js";
 
 export async function verificarAutenticacion(req, res) {
@@ -60,4 +59,3 @@ export async function autorizarRoles(req, res, rolesPermitidos) {
     // La sesión es válida y el rol está autorizado.
     return sesion;
 }
-

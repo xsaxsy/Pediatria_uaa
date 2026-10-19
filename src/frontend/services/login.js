@@ -38,11 +38,21 @@ formulario.addEventListener("submit", async (evento) => {
             return;
         }
 
-        mensaje.style.color = "#15803d";
-        mensaje.textContent =
-            "¡Inicio de sesión correcto! Tu sesión está activa.";
+        const rutasPorRol = {
+            Alumno: "/dashboard",
+            Docente: "/dashboard-docente",
+            Administrativo: "/dashboard-admin"
+        }
 
-        formulario.reset();
+        const ruta = rutasPorRol[datos.usuario?.rol];
+
+        if(!ruta) {
+            mensaje.style.color = "#b42318";
+            mensaje.textContent = "Tu cuenta no tiene un rol válido para acceder a la plataforma.";
+            return;
+        }
+
+        window.location.replace(ruta);
 
     } catch (error) {
         console.error("Error al iniciar sesión:", error);

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Panel administrativo del sistema de expedientes pediátricos de la UAA">
+    <title>Panel administrativo | Pediatría UAA</title>
+
+    <script>
+        document.documentElement.classList.add("auth-pending");
+    </script>
+
+    <link rel="stylesheet" href="/styles/style-dashboard.css">
+    <script src="/services/dashboard.js" defer></script>
+</head>
+
+<body>
+    <aside class="sidebar" id="menu-lateral" aria-label="Menú principal">
+        <div class="sidebar-header">
+            <img
+                src="/assets/LOGO_UAA.png"
+                alt="Logotipo de la Universidad Autónoma de Aguascalientes"
+                class="sidebar-logo"
+            >
+
+            <div class="sidebar-brand">
+                <span class="brand-title">Pediatría</span>
+                <span class="brand-subtitle">Sistema de expedientes</span>
+            </div>
+
+            <button
+                class="sidebar-close"
+                id="btn-cerrar-menu"
+                type="button"
+                aria-label="Cerrar menú"
+            >
+                &times;
+            </button>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <p class="nav-heading">MENÚ PRINCIPAL</p>
+
+        <nav class="sidebar-nav" aria-label="Navegación">
+            <a href="/dashboard-admin" class="nav-link active" aria-current="page">
+                <span class="nav-icon" aria-hidden="true">⌂</span>
+                <span>Inicio</span>
+            </a>
+
+            <a href="#cuentas" class="nav-link">
+                <span class="nav-icon" aria-hidden="true">♙</span>
+                <span>Cuentas de alumnos</span>
+            </a>
+
+            <a href="#grupos" class="nav-link">
+                <span class="nav-icon" aria-hidden="true">▤</span>
+                <span>Grupos</span>
+            </a>
+
+            <a href="#ayuda" class="nav-link">
+                <span class="nav-icon" aria-hidden="true">?</span>
+                <span>Ayuda</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <span class="footer-indicator"></span>
+            <span>Sistema institucional</span>
+        </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div class="topbar-heading">
+                <button
+                    class="menu-toggle"
+                    id="btn-menu"
+                    type="button"
+                    aria-label="Abrir menú"
+                    aria-controls="menu-lateral"
+                    aria-expanded="true"
+                >
+                    <span aria-hidden="true">☰</span>
+                </button>
+
+                <div>
+                    <p class="eyebrow">SISTEMA DE EXPEDIENTES PEDIÁTRICOS</p>
+                    <h1>Panel administrativo</h1>
+                </div>
+            </div>
+
+            <button
+                class="logout-button"
+                id="btn-cerrar-sesion"
+                type="button"
+            >
+                Cerrar sesión
+            </button>
+        </header>
+
+        <section class="welcome-card">
+            <div class="welcome-content">
+                <span class="welcome-label">ADMINISTRACIÓN DEL SISTEMA</span>
+                <h2>¡Bienvenido/a!</h2>
+                <p>
+                    Administra las cuentas de alumnos y consulta la información
+                    de los grupos académicos.
+                </p>
+
+                <span class="role-badge" id="rol-usuario">
+                    Verificando sesión...
+                </span>
+            </div>
+
+            <div class="welcome-decoration" aria-hidden="true">
+                <span class="decoration-circle circle-one"></span>
+                <span class="decoration-circle circle-two"></span>
+                <span class="decoration-cross">+</span>
+            </div>
+        </section>
+
+        <section class="section-content" aria-labelledby="titulo-opciones">
+            <div class="section-heading">
+                <p class="eyebrow">CONTROL INSTITUCIONAL</p>
+                <h2 id="titulo-opciones">¿Qué necesitas administrar?</h2>
+                <p>Selecciona una de las opciones disponibles.</p>
+            </div>
+
+            <div class="dashboard-cards">
+                <a href="#cuentas" class="dashboard-card" id="cuentas">
+                    <div class="card-icon icon-blue" aria-hidden="true">♙</div>
+                    <div class="card-text">
+                        <h3>Cuentas de alumnos</h3>
+                        <p>Accede a la gestión de las cuentas estudiantiles.</p>
+                    </div>
+                    <span class="card-arrow" aria-hidden="true">→</span>
+                </a>
+
+                <a href="#grupos" class="dashboard-card" id="grupos">
+                    <div class="card-icon icon-red" aria-hidden="true">▤</div>
+                    <div class="card-text">
+                        <h3>Grupos</h3>
+                        <p>Consulta los grupos académicos registrados.</p>
+                    </div>
+                    <span class="card-arrow" aria-hidden="true">→</span>
+                </a>
+
+                <a href="#ayuda" class="dashboard-card" id="ayuda">
+                    <div class="card-icon icon-yellow" aria-hidden="true">?</div>
+                    <div class="card-text">
+                        <h3>Ayuda</h3>
+                        <p>Consulta información sobre el uso del sistema.</p>
+                    </div>
+                    <span class="card-arrow" aria-hidden="true">→</span>
+                </a>
+            </div>
+        </section>
+
+        <footer class="main-footer">
+            <div class="footer-brand">
+                <span class="footer-brand-dot"></span>
+                <span>Universidad Autónoma de Aguascalientes</span>
+            </div>
+            <span class="footer-system">Sistema de expedientes pediátricos</span>
+        </footer>
+    </main>
+</body>
+</html>

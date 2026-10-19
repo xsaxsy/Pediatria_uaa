@@ -1,9 +1,39 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/dashboard.js": {
+      "includeFiles": "src/backend/views/dashboard.html"
+    },
+    "api/dashboard-docente.js": {
+      "includeFiles": "src/backend/views/dashboard-docente.html"
+    },
+    "api/dashboard-admin.js": {
+      "includeFiles": "src/backend/views/dashboard-admin.html"
+    }
+  },
+  "redirects": [
+    {
+      "source": "/src/frontend/pages/dashboard.html",
+      "destination": "/dashboard",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/",
       "destination": "/src/frontend/pages/login.html"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/api/dashboard"
+    },
+    {
+      "source": "/dashboard-docente",
+      "destination": "/api/dashboard-docente"
+    },
+    {
+      "source": "/dashboard-admin",
+      "destination": "/api/dashboard-admin"
     },
     {
       "source": "/styles/:path*",

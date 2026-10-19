@@ -3,6 +3,8 @@ node_modules/
 
 # Variables de entorno
 .env
+.env.*
+!.env.example
 .env.local
 .env.*.local
 

@@ -1,4 +1,3 @@
-
 import { verificarAutenticacion } from "../../src/backend/validators/authMiddleware.js";
 
 export default async function handler(req, res) {
