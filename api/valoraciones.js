@@ -1,10 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { neon } from "@neondatabase/serverless";
 import { autorizarRoles } from "../src/backend/validators/authMiddleware.js";
+import { obtenerIdAlumno } from "../src/backend/validators/alumnoSesionValidator.js";
 
 const sql = neon(process.env.DATABASE_URL);
 
 export default async function handler(req, res) {
+    res.setHeader("Cache-Control", "private, no-store");
+    res.setHeader("Vary", "Cookie");
     if (req.method !== "POST") {
         res.setHeader("Allow", "POST");
         return res.status(405).json({ success: false, message: "Método no permitido" });
@@ -13,6 +16,7 @@ export default async function handler(req, res) {
     try {
         const sesion = await autorizarRoles(req, res, ["Alumno"]);
         if (!sesion) return;
+        const idUsuario = obtenerIdAlumno(sesion);
 
         const {
             pacienteNombre,
@@ -51,7 +55,6 @@ export default async function handler(req, res) {
             });
         }
 
-        const idUsuario = Number(sesion.id_usuario);
         const folio = `VAL-${randomUUID().replaceAll("-", "").slice(0, 16).toUpperCase()}`;
         const datosSecciones = JSON.stringify(respuestasPorSeccion);
         const etiquetasJson = JSON.stringify(etiquetas);
@@ -206,6 +209,9 @@ export default async function handler(req, res) {
             respuestas_guardadas: guardado[0].respuestas_guardadas
         });
     } catch (error) {
+        if (error.status === 401) {
+            return res.status(401).json({ success: false, message: error.message });
+        }
         console.error("Error al guardar valoración:", error);
         const codigoError = typeof error?.code === "string" ? error.code : "";
         const detalleError = typeof error?.message === "string" ? error.message : "";

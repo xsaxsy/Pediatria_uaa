@@ -1102,3 +1102,26 @@ section[hidden] { display: none !important; }
     .form-actions { align-items: stretch; flex-direction: column; }
     .submit-button { width: 100%; }
 }
+
+/* Consulta de expedientes */
+.expedientes-table-container { overflow-x: auto; margin-top: 1rem; }
+.expedientes-table { width: 100%; border-collapse: collapse; text-align: left; }
+.expedientes-table caption { text-align: left; margin-bottom: .75rem; font-weight: 600; }
+.expedientes-table th, .expedientes-table td { padding: .8rem; border-bottom: 1px solid #dce3ef; vertical-align: top; }
+.expedientes-table th { background: #f4f7fc; }
+.expediente-detalle { margin-top: 1.5rem; padding: 1.25rem; border: 1px solid #dce3ef; border-radius: 12px; overflow-wrap: anywhere; }
+.expediente-detalle p { white-space: pre-wrap; margin: .6rem 0; }
+.expediente-detalle h4 { margin-top: 1.25rem; }
+#expedientes-panel button:disabled { opacity: .55; cursor: not-allowed; }
+.expedientes-table td:last-child { min-width: 180px; }
+.expedientes-table td:last-child button { margin: .2rem; }
+.expediente-detalle .valuation-form { margin-top: 1rem; }
+
+/* Guía de ayuda: tarjetas y colores del panel existente. */
+.help-topics { display: grid; gap: 14px; }
+.help-topic summary { cursor: pointer; color: var(--azul-uaa); font-weight: 650; line-height: 1.5; }
+.help-topic summary:focus-visible { outline: 3px solid var(--amarillo-uaa); outline-offset: 4px; border-radius: 4px; }
+.help-topic-content { color: var(--texto); line-height: 1.7; font-size: 14px; overflow-wrap: anywhere; }
+.help-topic-content p, .help-topic-content ul, .help-topic-content ol { margin-top: 12px; }
+.help-topic-content ul, .help-topic-content ol { padding-left: 22px; }
+.help-topic-content li + li { margin-top: 8px; }

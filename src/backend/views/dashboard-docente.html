@@ -12,6 +12,7 @@
 
     <link rel="stylesheet" href="/styles/style-dashboard.css">
     <script src="/services/dashboard.js" defer></script>
+    <script src="/services/expedientes.js" defer></script>
 </head>
 
 <body>
@@ -46,11 +47,6 @@
             <a href="/dashboard-docente" class="nav-link active" aria-current="page">
                 <span class="nav-icon" aria-hidden="true">⌂</span>
                 <span>Inicio</span>
-            </a>
-
-            <a href="#grupos" class="nav-link">
-                <span class="nav-icon" aria-hidden="true">▤</span>
-                <span>Mis grupos</span>
             </a>
 
             <a href="#valoraciones" class="nav-link">
@@ -106,8 +102,7 @@
                 <span class="welcome-label">ESPACIO DOCENTE</span>
                 <h2>¡Bienvenido/a!</h2>
                 <p>
-                    Consulta tus grupos y da seguimiento a las valoraciones
-                    pediátricas realizadas por tus alumnos.
+                    Consulta y administra las valoraciones pediátricas de todos los alumnos.
                 </p>
 
                 <span class="role-badge" id="rol-usuario">
@@ -122,6 +117,36 @@
             </div>
         </section>
 
+        <section class="section-content valuation-section" id="expedientes-panel" data-consulta-hash="#valoraciones" aria-labelledby="expedientes-title" hidden>
+            <div class="section-heading valuation-heading">
+                <div><p class="eyebrow">CONSULTA DOCENTE</p><h2 id="expedientes-title">Valoraciones pediátricas</h2>
+                <p>Consulta, edita o elimina las valoraciones de cualquier alumno. Filtra por nombre, correo o identificador del alumno.</p></div>
+                <div><button type="button" class="submit-button" id="exportar-reportes" disabled aria-describedby="reportes-pendiente">Exportar reportes</button>
+                <p id="reportes-pendiente">Exportación disponible próximamente.</p></div>
+            </div>
+            <form id="expedientes-filtros" data-rol="Docente" class="valuation-form">
+                <div class="valuation-grid">
+                    <label class="valuation-field"><span>Alumno: nombre o correo</span><input name="alumno" type="search" maxlength="254" placeholder="Nombre o correo del alumno"></label>
+                    <label class="valuation-field"><span>Identificador del alumno</span><input name="id_alumno" type="number" min="1" max="2147483647" step="1" placeholder="Opcional"></label>
+                    <label class="valuation-field"><span>Nombre del paciente o folio</span><input name="buscar" type="search" maxlength="150" placeholder="Buscar por nombre o folio"></label>
+                    <label class="valuation-field"><span>Sexo</span><select name="sexo"><option value="">Todos</option><option>Masculino</option><option>Femenino</option><option>Otro</option></select></label>
+                    <label class="valuation-field"><span>Estado de la valoración</span><select name="estado"><option value="">Todos</option><option value="borrador">Borrador</option><option value="completado">Completado</option><option value="validado">Validado</option></select></label>
+                    <label class="valuation-field"><span>Fecha de valoración desde</span><input name="desde" type="date"></label>
+                    <label class="valuation-field"><span>Fecha de valoración hasta</span><input name="hasta" type="date"></label>
+                </div>
+                <div class="form-actions"><button class="valuation-back" type="reset">Limpiar filtros</button><button class="submit-button" type="submit">Buscar</button></div>
+            </form>
+            <p id="expedientes-mensaje" role="status" aria-live="polite"></p>
+            <div class="expedientes-table-container" role="region" aria-label="Resultados de expedientes" tabindex="0">
+                <table class="expedientes-table"><caption>Valoraciones de todos los alumnos</caption>
+                    <thead><tr><th scope="col">Folio</th><th scope="col">Paciente</th><th scope="col">Sexo</th><th scope="col">Nacimiento</th><th scope="col">Valoración</th><th scope="col">Estado</th><th scope="col">Alumno responsable</th><th scope="col">Acciones</th></tr></thead>
+                    <tbody id="expedientes-resultados"></tbody>
+                </table>
+            </div>
+            <div class="form-actions"><button class="valuation-back" id="expedientes-anterior" type="button" disabled>Anterior</button><span id="expedientes-paginacion" aria-live="polite"></span><button class="valuation-back" id="expedientes-siguiente" type="button" disabled>Siguiente</button></div>
+            <article id="expediente-detalle" class="expediente-detalle" tabindex="-1" aria-label="Detalle de valoración" hidden></article>
+        </section>
+
         <section class="section-content" aria-labelledby="titulo-opciones">
             <div class="section-heading">
                 <p class="eyebrow">GESTIÓN ACADÉMICA</p>
@@ -130,20 +155,12 @@
             </div>
 
             <div class="dashboard-cards">
-                <a href="#grupos" class="dashboard-card" id="grupos">
-                    <div class="card-icon icon-blue" aria-hidden="true">▤</div>
-                    <div class="card-text">
-                        <h3>Mis grupos</h3>
-                        <p>Consulta los grupos académicos asignados.</p>
-                    </div>
-                    <span class="card-arrow" aria-hidden="true">→</span>
-                </a>
 
                 <a href="#valoraciones" class="dashboard-card" id="valoraciones">
                     <div class="card-icon icon-red" aria-hidden="true">☷</div>
                     <div class="card-text">
                         <h3>Valoraciones</h3>
-                        <p>Da seguimiento a las valoraciones de tus alumnos.</p>
+                        <p>Consulta, modifica y elimina valoraciones de todos los alumnos.</p>
                     </div>
                     <span class="card-arrow" aria-hidden="true">→</span>
                 </a>
@@ -156,6 +173,19 @@
                     </div>
                     <span class="card-arrow" aria-hidden="true">→</span>
                 </a>
+            </div>
+        </section>
+
+        <section class="section-content valuation-section" id="ayuda-panel" aria-labelledby="ayuda-title" hidden>
+            <div class="section-heading valuation-heading"><div><p class="eyebrow">AYUDA Y ORIENTACIÓN</p><h2 id="ayuda-title">Guía de uso del sistema</h2><p>Consulta cómo utilizar las herramientas de tu cuenta de docente.</p></div><span class="valuation-badge">Docente</span></div>
+            <div class="help-topics">
+                <details class="valuation-group help-topic" open><summary>1. Acceso y navegación</summary><div class="help-topic-content"><ol><li>Inicia sesión con tu correo y contraseña. El sistema te dirige al panel correspondiente a tu rol.</li><li>Usa el menú lateral o las tarjetas de inicio para abrir Valoraciones y Ayuda.</li><li>En pantallas pequeñas, usa el botón de menú para mostrar u ocultar las opciones.</li><li>Para salir, utiliza <strong>Cerrar sesión</strong>. Tus valoraciones guardadas permanecen disponibles al volver a entrar.</li></ol></div></details>
+                <details class="valuation-group help-topic"><summary>2. Qué puedes hacer con tu cuenta</summary><div class="help-topic-content"><p>Como docente puedes consultar, editar y eliminar las valoraciones de todos los alumnos. No necesitas seleccionar un grupo.</p><p>La columna <strong>Alumno responsable</strong> identifica al autor original. Editar una valoración no cambia su autor.</p></div></details>
+                <details class="valuation-group help-topic"><summary>3. Consultar y filtrar valoraciones</summary><div class="help-topic-content"><ol><li>Abre <strong>Valoraciones</strong>.</li><li>Escribe el nombre o folio del paciente, o utiliza los filtros de sexo, estado y fechas. Puedes combinar filtros.</li><li>El intervalo corresponde a la <strong>fecha de valoración</strong>, incluye ambos extremos y debe tener la fecha inicial anterior o igual a la final.</li><li>Para localizar un alumno usa <strong>Alumno: nombre o correo</strong>, o su <strong>Identificador del alumno</strong>. Si completas ambos campos, el registro debe cumplir ambos filtros. Deja los campos vacíos para consultar todos.</li><li>Pulsa <strong>Buscar</strong>. Usa <strong>Limpiar filtros</strong> para restablecer la consulta y <strong>Anterior / Siguiente</strong> para recorrer los resultados.</li><li>Pulsa <strong>Ver valoración</strong> para revisar respuestas y tutores actuales del paciente.</li></ol><p>El estado general puede aparecer como borrador, completado o validado. El formulario de alta actual guarda como completado; el filtro no cambia ese estado.</p></div></details>
+                <details class="valuation-group help-topic"><summary>4. Realizar cambios</summary><div class="help-topic-content"><ol><li>Localiza la valoración y pulsa <strong>Editar</strong>, o abre el detalle y elige <strong>Editar valoración</strong>.</li><li>Modifica la fecha o las respuestas guardadas. Las listas muestran las opciones disponibles en el catálogo registrado.</li><li>Pulsa <strong>Guardar cambios</strong> y espera la confirmación. Usa <strong>Cancelar</strong> para descartar la edición.</li></ol><p>Este editor no modifica los datos generales del paciente o tutor, el estado general ni la validación docente. Tampoco sustituye el formulario dinámico de alta.</p><p>Si el sistema avisa que la valoración cambió, recarga el detalle y revisa la versión actual antes de editar de nuevo.</p></div></details>
+                <details class="valuation-group help-topic"><summary>5. Eliminar una valoración</summary><div class="help-topic-content"><ol><li>Confirma que seleccionaste al paciente y la fecha correctos.</li><li>Pulsa <strong>Eliminar</strong> o <strong>Eliminar valoración</strong> desde el detalle.</li><li>Lee la confirmación. Si no deseas continuar, cancela.</li></ol><p><strong>La eliminación es permanente:</strong> borra esa valoración, sus respuestas y consentimientos asociados. Conserva al paciente, sus tutores y las demás valoraciones. No existe una papelera ni un botón para deshacer.</p></div></details>
+                <details class="valuation-group help-topic"><summary>6. Exportar reportes</summary><div class="help-topic-content"><p>El botón <strong>Exportar reportes</strong> está preparado, pero permanece deshabilitado. La descarga de reportes todavía no está disponible.</p></div></details>
+                <details class="valuation-group help-topic"><summary>7. Resolver problemas y proteger la información</summary><div class="help-topic-content"><ul><li><strong>No hay resultados:</strong> revisa las fechas, simplifica la búsqueda o limpia los filtros. El alumno solo verá sus propios registros.</li><li><strong>Sesión expirada:</strong> inicia sesión nuevamente para continuar.</li><li><strong>Error de conexión:</strong> revisa tu conexión y vuelve a intentar la consulta. Si el sistema indica que la base de datos no está configurada o el error persiste, informa al responsable del proyecto.</li><li><strong>Datos no disponibles:</strong> el registro pudo eliminarse, modificarse o estar fuera del alcance de tu cuenta.</li><li>No compartas tu contraseña, información clínica ni capturas con datos personales. Cierra sesión al usar un equipo compartido.</li><li>Antes de abandonar una captura o edición, guarda y espera la confirmación.</li></ul></div></details>
             </div>
         </section>
 

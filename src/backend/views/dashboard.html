@@ -13,6 +13,7 @@
     document.documentElement.classList.add("auth-pending");
     </script>
     <script src="/services/dashboard.js" defer></script>
+    <script src="/services/expedientes.js" defer></script>
 </head>
 
 <body>
@@ -161,6 +162,34 @@
             </form>
         </section>
 
+        <section class="section-content valuation-section" id="expedientes-panel" aria-labelledby="expedientes-title" hidden>
+            <div class="section-heading valuation-heading">
+                <div><p class="eyebrow">CONSULTA PERSONAL</p><h2 id="expedientes-title">Mis expedientes pediátricos</h2>
+                <p>Solo puedes consultar, editar o eliminar las valoraciones registradas con tu cuenta. Tus registros se conservan al cerrar sesión.</p></div>
+                <div><button type="button" class="submit-button" id="exportar-reportes" disabled aria-describedby="reportes-pendiente">Exportar reportes</button>
+                <p id="reportes-pendiente">Exportación disponible próximamente.</p></div>
+            </div>
+            <form id="expedientes-filtros" class="valuation-form">
+                <div class="valuation-grid">
+                    <label class="valuation-field"><span>Nombre del paciente o folio</span><input name="buscar" type="search" maxlength="150" placeholder="Buscar por nombre o folio"></label>
+                    <label class="valuation-field"><span>Sexo</span><select name="sexo"><option value="">Todos</option><option>Masculino</option><option>Femenino</option><option>Otro</option></select></label>
+                    <label class="valuation-field"><span>Estado de la valoración</span><select name="estado"><option value="">Todos</option><option value="borrador">Borrador</option><option value="completado">Completado</option><option value="validado">Validado</option></select></label>
+                    <label class="valuation-field"><span>Fecha de valoración desde</span><input name="desde" type="date"></label>
+                    <label class="valuation-field"><span>Fecha de valoración hasta</span><input name="hasta" type="date"></label>
+                </div>
+                <div class="form-actions"><button class="valuation-back" type="reset">Limpiar filtros</button><button class="submit-button" type="submit">Buscar</button></div>
+            </form>
+            <p id="expedientes-mensaje" role="status" aria-live="polite"></p>
+            <div class="expedientes-table-container" role="region" aria-label="Resultados de expedientes" tabindex="0">
+                <table class="expedientes-table"><caption>Valoraciones registradas por ti</caption>
+                    <thead><tr><th scope="col">Folio</th><th scope="col">Paciente</th><th scope="col">Sexo</th><th scope="col">Nacimiento</th><th scope="col">Valoración</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
+                    <tbody id="expedientes-resultados"></tbody>
+                </table>
+            </div>
+            <div class="form-actions"><button class="valuation-back" id="expedientes-anterior" type="button" disabled>Anterior</button><span id="expedientes-paginacion" aria-live="polite"></span><button class="valuation-back" id="expedientes-siguiente" type="button" disabled>Siguiente</button></div>
+            <article id="expediente-detalle" class="expediente-detalle" tabindex="-1" aria-label="Detalle de valoración" hidden></article>
+        </section>
+
         <!-- Accesos principales -->
         <section class="section-content" aria-labelledby="section-title">
             <div class="section-heading">
@@ -235,6 +264,22 @@
         </section>
 
         <!-- Pie de página -->
+        <section class="section-content valuation-section" id="ayuda-panel" aria-labelledby="ayuda-title" hidden>
+            <div class="section-heading valuation-heading"><div><p class="eyebrow">AYUDA Y ORIENTACIÓN</p><h2 id="ayuda-title">Guía de uso del sistema</h2><p>Consulta cómo utilizar las herramientas de tu cuenta de alumno.</p></div><span class="valuation-badge">Alumno</span></div>
+            <div class="help-topics">
+                <details class="valuation-group help-topic" open><summary>1. Acceso y navegación</summary><div class="help-topic-content"><ol><li>Inicia sesión con tu correo y contraseña. El sistema te dirige al panel correspondiente a tu rol.</li><li>Usa el menú lateral o las tarjetas de inicio para abrir Expedientes, Valoraciones y Ayuda.</li><li>En pantallas pequeñas, usa el botón de menú para mostrar u ocultar las opciones.</li><li>Para salir, utiliza <strong>Cerrar sesión</strong>. Tus valoraciones guardadas permanecen disponibles al volver a entrar.</li></ol></div></details>
+                <details class="valuation-group help-topic"><summary>2. Qué puedes hacer con tu cuenta</summary><div class="help-topic-content"><p>Como alumno puedes registrar valoraciones y consultar, editar o eliminar únicamente las que se guardaron con tu cuenta. No puedes abrir registros de otro alumno, aunque conozcas su folio o identificador.</p><p>Un expediente reúne la información del paciente y sus valoraciones. En la consulta actual, <strong>cada fila corresponde a una valoración</strong>.</p></div></details>
+                <details class="valuation-group help-topic"><summary>3. Registrar paciente, tutor y valoración</summary><div class="help-topic-content"><ol><li>Abre <strong>Valoraciones</strong> y captura los datos del tutor o informante. Completa los campos marcados con asterisco.</li><li>Continúa con nombre del paciente, fecha de nacimiento, sexo y fecha de valoración. La edad en meses se calcula automáticamente.</li><li>Continúa a la guía y completa las secciones que correspondan. Puedes usar los botones de volver para revisar los datos antes de guardar.</li><li>En el flujo actual, paciente y tutor se registran junto con la valoración. No hay una pantalla de alta independiente.</li><li>Antes de capturar de nuevo a una persona, revisa <strong>Expedientes</strong>: el alta actual crea otro paciente y tutor; no reutiliza automáticamente registros anteriores.</li></ol></div></details>
+                <details class="valuation-group help-topic"><summary>4. Responder el formulario</summary><div class="help-topic-content"><ul><li>Los círculos permiten una sola respuesta por pregunta; las casillas permiten varias.</li><li>Cuando exista <strong>No hallazgos</strong>, <strong>No hay hallazgos</strong> o <strong>No hay</strong>, esa opción no se combina con los demás elementos del mismo grupo.</li><li>Las respuestas como <strong>Otros</strong> o <strong>Con ayuda</strong> pueden abrir un campo para especificar. Completa los campos adicionales visibles que sean obligatorios.</li><li>En las frecuencias de higiene, <strong>Semanal</strong>, <strong>Al mes</strong> y <strong>Quincenalmente</strong> piden el número de veces por periodo; <strong>Diario</strong> no muestra ese campo.</li><li>Las preguntas se muestran según la edad, el sexo y las respuestas anteriores. Los campos ocultos y deshabilitados no se envían al guardar.</li><li>Revisa las unidades indicadas: por ejemplo, inicio de dentición <strong>por meses</strong>. Su valor no puede superar la edad actual del niño.</li><li>En cada sección indica <strong>Valorado</strong> o <strong>No valorado</strong>. Este dato es distinto del estado general de la valoración.</li></ul></div></details>
+                <details class="valuation-group help-topic"><summary>5. Guardar y comprobar el registro</summary><div class="help-topic-content"><ol><li>Revisa los datos y pulsa <strong>Guardar valoración</strong> una sola vez.</li><li>Espera el mensaje de confirmación antes de salir. Si hay un error, revisa los campos indicados y conserva el formulario abierto.</li><li>Después de guardar, abre <strong>Expedientes</strong> y busca por nombre, folio o fecha para comprobar el registro.</li></ol><p>No hay guardado automático de borradores: salir o recargar antes de confirmar puede perder la captura. Si no sabes si una solicitud se guardó, consulta primero antes de repetirla.</p></div></details>
+                <details class="valuation-group help-topic"><summary>6. Consultar y filtrar expedientes</summary><div class="help-topic-content"><ol><li>Abre <strong>Expedientes</strong>.</li><li>Escribe el nombre o folio del paciente, o utiliza los filtros de sexo, estado y fechas. Puedes combinar filtros.</li><li>El intervalo corresponde a la <strong>fecha de valoración</strong>, incluye ambos extremos y debe tener la fecha inicial anterior o igual a la final.</li><li>Pulsa <strong>Buscar</strong>. Usa <strong>Limpiar filtros</strong> para restablecer la consulta y <strong>Anterior / Siguiente</strong> para recorrer los resultados.</li><li>Pulsa <strong>Ver valoración</strong> para revisar respuestas y tutores actuales del paciente.</li></ol><p>El estado general puede aparecer como borrador, completado o validado. El formulario de alta actual guarda como completado; el filtro no cambia ese estado.</p></div></details>
+                <details class="valuation-group help-topic"><summary>7. Realizar cambios</summary><div class="help-topic-content"><ol><li>Localiza la valoración y pulsa <strong>Editar</strong>, o abre el detalle y elige <strong>Editar valoración</strong>.</li><li>Modifica la fecha o las respuestas guardadas. Las listas muestran las opciones disponibles en el catálogo registrado.</li><li>Pulsa <strong>Guardar cambios</strong> y espera la confirmación. Usa <strong>Cancelar</strong> para descartar la edición.</li></ol><p>Este editor no modifica los datos generales del paciente o tutor, el estado general ni la validación docente. Tampoco sustituye el formulario dinámico de alta.</p><p>Si el sistema avisa que la valoración cambió, recarga el detalle y revisa la versión actual antes de editar de nuevo.</p></div></details>
+                <details class="valuation-group help-topic"><summary>8. Eliminar una valoración</summary><div class="help-topic-content"><ol><li>Confirma que seleccionaste al paciente y la fecha correctos.</li><li>Pulsa <strong>Eliminar</strong> o <strong>Eliminar valoración</strong> desde el detalle.</li><li>Lee la confirmación. Si no deseas continuar, cancela.</li></ol><p><strong>La eliminación es permanente:</strong> borra esa valoración, sus respuestas y consentimientos asociados. Conserva al paciente, sus tutores y las demás valoraciones. No existe una papelera ni un botón para deshacer.</p></div></details>
+                <details class="valuation-group help-topic"><summary>9. Exportar reportes</summary><div class="help-topic-content"><p>El botón <strong>Exportar reportes</strong> está preparado, pero permanece deshabilitado. La descarga de reportes todavía no está disponible.</p></div></details>
+                <details class="valuation-group help-topic"><summary>10. Resolver problemas y proteger la información</summary><div class="help-topic-content"><ul><li><strong>No hay resultados:</strong> revisa las fechas, simplifica la búsqueda o limpia los filtros. El alumno solo verá sus propios registros.</li><li><strong>Sesión expirada:</strong> inicia sesión nuevamente para continuar.</li><li><strong>Error de conexión:</strong> revisa tu conexión y vuelve a intentar la consulta. Si el sistema indica que la base de datos no está configurada o el error persiste, informa al responsable del proyecto.</li><li><strong>Datos no disponibles:</strong> el registro pudo eliminarse, modificarse o estar fuera del alcance de tu cuenta.</li><li>No compartas tu contraseña, información clínica ni capturas con datos personales. Cierra sesión al usar un equipo compartido.</li><li>Antes de abandonar una captura o edición, guarda y espera la confirmación.</li></ul></div></details>
+            </div>
+        </section>
+
         <footer class="main-footer">
             <div class="footer-brand">
                 <span class="footer-brand-dot"></span>

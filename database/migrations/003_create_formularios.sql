@@ -10,8 +10,8 @@ CREATE TABLE IF NOT EXISTS pregunta (
     id_pregunta INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     id_seccion INTEGER NOT NULL,
     enunciado TEXT NOT NULL,
-    tipo_respuesta VARCHAR(50) NOT NULL, -- text, date, radio, check, frequency, textarea
-    obligatoria BOOLEAN NOT NULL DEFAULT TRUE,
+    tipo_respuesta VARCHAR(50) NOT NULL, -- API: text, date, number, select, multiple
+    obligatoria BOOLEAN NOT NULL DEFAULT FALSE,
     orden INTEGER NOT NULL,
     CONSTRAINT fk_pregunta_seccion FOREIGN KEY (id_seccion) REFERENCES seccion(id_seccion) ON DELETE CASCADE
 );
@@ -49,3 +49,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_pregunta_seccion_enunciado
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_opcion_pregunta_texto
     ON opcion_respuesta (id_pregunta, texto);
+
+-- Contrato del formulario actual:
+-- La API crea las preguntas a partir de respuestasPorSeccion y etiquetas.
+-- Radio buttons y desplegables se envían como select; casillas como multiple.
+-- Campos numéricos (frecuencias, tomas en 24 horas, dentición) usan number.
+-- Detalles condicionales se registran como preguntas adicionales, no columnas.
+-- No se precargan listas aquí: las opciones las envía el formulario a la API.
+-- No eliminar opciones históricas aunque ya no aparezcan en la interfaz.
+-- La obligatoriedad por edad/selección se valida en la aplicación; no todas
+-- las preguntas son obligatorias para todos los pacientes.
