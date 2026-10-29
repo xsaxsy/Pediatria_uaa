@@ -1,6 +1,8 @@
 import { verificarAutenticacion } from "../../src/backend/validators/authMiddleware.js";
 
 export default async function handler(req, res) {
+    res.setHeader("Cache-Control", "private, no-store");
+    res.setHeader("Vary", "Cookie");
     if (req.method !== "GET") {
         res.setHeader("Allow", "GET");
 
