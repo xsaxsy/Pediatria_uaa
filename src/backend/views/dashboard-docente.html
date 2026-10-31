@@ -121,8 +121,20 @@
             <div class="section-heading valuation-heading">
                 <div><p class="eyebrow">CONSULTA DOCENTE</p><h2 id="expedientes-title">Valoraciones pediátricas</h2>
                 <p>Consulta, edita o elimina las valoraciones de cualquier alumno. Filtra por nombre, correo o identificador del alumno.</p></div>
-                <div><button type="button" class="submit-button" id="exportar-reportes" disabled aria-describedby="reportes-pendiente">Exportar reportes</button>
-                <p id="reportes-pendiente">Exportación disponible próximamente.</p></div>
+                <div>
+    <button
+        type="button"
+        class="submit-button"
+        id="exportar-reportes"
+        aria-describedby="reportes-pendiente"
+    >
+        Exportar reportes
+    </button>
+
+    <p id="reportes-pendiente" role="status">
+        Exporta las valoraciones de la última búsqueda realizada.
+    </p>
+</div>
             </div>
             <form id="expedientes-filtros" data-rol="Docente" class="valuation-form">
                 <div class="valuation-grid">
