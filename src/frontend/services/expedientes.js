@@ -265,6 +265,73 @@
             if (error.name !== "AbortError") mensaje.textContent = error.message;
         }
     }
+    const botonReportes = document.querySelector("#exportar-reportes");
+    const mensajeReportes = document.querySelector("#reportes-pendiente");
+
+    botonReportes?.addEventListener("click", async () => {
+
+                const desde = form.elements.desde.value;
+        const hasta = form.elements.hasta.value;
+
+        if (!form.reportValidity()) {
+            mensajeReportes.textContent =
+                "Revisa los filtros antes de exportar.";
+            return;
+        }
+
+        if (desde && hasta && desde > hasta) {
+            mensajeReportes.textContent =
+                "La fecha inicial debe ser anterior o igual a la final.";
+            return;
+        }
+        
+        botonReportes.disabled = true;
+        mensajeReportes.textContent = "Generando Excel…";
+
+        try {
+            // Exportar con los filtros de la última búsqueda.
+            const parametros = new URLSearchParams(filtros);
+
+            parametros.delete("pagina");
+            parametros.delete("limite");
+
+            const respuesta = await fetch(
+                `/api/reportes?${parametros.toString()}`,
+                {
+                    credentials: "same-origin",
+                    cache: "no-store"
+                }
+            );
+
+            if (!respuesta.ok) {
+                const datos = await respuesta.json().catch(() => ({}));
+
+                throw new Error(
+                    datos.message || "No se pudo descargar el reporte."
+                );
+            }
+
+            const archivo = await respuesta.blob();
+            const url = URL.createObjectURL(archivo);
+            const enlace = document.createElement("a");
+
+            enlace.href = url;
+            enlace.download = "reporte-valoraciones.xlsx";
+
+            document.body.appendChild(enlace);
+            enlace.click();
+            enlace.remove();
+
+            setTimeout(() => URL.revokeObjectURL(url), 60000);
+
+            mensajeReportes.textContent =
+                "Archivo generado. Revisa las descargas del navegador.";
+        } catch (error) {
+            mensajeReportes.textContent = error.message;
+        } finally {
+            botonReportes.disabled = false;
+        }
+    });
 
     form.addEventListener("submit", (evento) => {
         evento.preventDefault();
