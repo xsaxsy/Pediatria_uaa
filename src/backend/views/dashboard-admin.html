@@ -12,9 +12,11 @@
 
     <link rel="stylesheet" href="/styles/style-dashboard.css">
     <script src="/services/dashboard.js" defer></script>
+    <link rel="stylesheet" href="/styles/style-admin.css">
+    <script src="/services/admin.js" type="module"></script>
 </head>
 
-<body>
+<body class="admin-dashboard">
     <aside class="sidebar" id="menu-lateral" aria-label="Menú principal">
         <div class="sidebar-header">
             <img
@@ -106,8 +108,8 @@
                 <span class="welcome-label">ADMINISTRACIÓN DEL SISTEMA</span>
                 <h2>¡Bienvenido/a!</h2>
                 <p>
-                    Administra las cuentas de alumnos y consulta la información
-                    de los grupos académicos.
+                    Organiza los grupos de cada semestre, registra alumnos
+                    y administra el acceso de sus cuentas.
                 </p>
 
                 <span class="role-badge" id="rol-usuario">
@@ -134,7 +136,7 @@
                     <div class="card-icon icon-blue" aria-hidden="true">♙</div>
                     <div class="card-text">
                         <h3>Cuentas de alumnos</h3>
-                        <p>Accede a la gestión de las cuentas estudiantiles.</p>
+                        <p>Registra alumnos, asígnales un grupo y administra su acceso.</p>
                     </div>
                     <span class="card-arrow" aria-hidden="true">→</span>
                 </a>
@@ -143,7 +145,7 @@
                     <div class="card-icon icon-red" aria-hidden="true">▤</div>
                     <div class="card-text">
                         <h3>Grupos</h3>
-                        <p>Consulta los grupos académicos registrados.</p>
+                        <p>Crea grupos por semestre y año, y consulta sus integrantes.</p>
                     </div>
                     <span class="card-arrow" aria-hidden="true">→</span>
                 </a>
@@ -152,13 +154,89 @@
                     <div class="card-icon icon-yellow" aria-hidden="true">?</div>
                     <div class="card-text">
                         <h3>Ayuda</h3>
-                        <p>Consulta información sobre el uso del sistema.</p>
+                        <p>Encuentra instrucciones para registrar, editar y organizar la información.</p>
                     </div>
                     <span class="card-arrow" aria-hidden="true">→</span>
                 </a>
             </div>
         </section>
 
+        <section id="admin-panel" class="section-content admin-panel" hidden aria-labelledby="admin-title">
+            <div class="admin-heading"><div><p class="eyebrow">CONTROL INSTITUCIONAL</p><h2 id="admin-title">Cuentas de alumnos</h2></div><button type="button" class="submit-button" id="admin-nuevo">Registrar alumno</button></div>
+            <p id="admin-description" class="admin-description">Consulta las cuentas, busca un alumno o registra uno nuevo.</p>
+            <p id="admin-message" role="status" aria-live="polite"></p>
+            <div id="admin-listado">
+                <form id="admin-filtros" class="admin-filtros">
+                    <fieldset class="admin-form-group">
+                        <legend>Buscar alumnos</legend>
+                        <p id="admin-filter-help">Completa los filtros que necesites y pulsa Buscar. Puedes combinarlos.</p>
+                        <div class="admin-filter-fields">
+                            <label>Nombre o correo<input name="buscar" type="search" maxlength="150" placeholder="Escribe un nombre o correo" aria-describedby="admin-filter-help"></label>
+                            <label>Grupo<select name="grupo"><option value="">Todos los grupos</option></select></label>
+                            <label>Estado de la cuenta<select name="activo"><option value="">Todos los estados</option><option value="true">Activo</option><option value="false">Inactivo</option></select></label>
+                        </div>
+                        <div class="admin-actions"><button type="submit" class="submit-button">Buscar</button><button type="reset">Limpiar filtros</button></div>
+                    </fieldset>
+                </form>
+                <p class="admin-table-hint">Desliza la tabla hacia los lados para ver todas las columnas y acciones.</p>
+                <div class="expedientes-table-container" id="admin-tabla" tabindex="0" role="region" aria-label="Resultados de la consulta"></div>
+                <div class="admin-pagination" id="admin-paginacion"><button type="button" id="admin-anterior">Anterior</button><span id="admin-pagina"></span><button type="button" id="admin-siguiente">Siguiente</button></div>
+            </div>
+            <form id="admin-form" class="admin-editor" hidden aria-labelledby="admin-editor-title">
+                <h3 id="admin-editor-title">Registrar alumno</h3>
+                <p id="admin-editor-description" class="admin-description"></p>
+                <p class="admin-required-note">Los campos con * son obligatorios. Los cambios se aplican al guardar.</p>
+                <div class="admin-form-sections">
+                    <fieldset class="admin-form-group">
+                        <legend id="admin-identity-title">Datos del alumno</legend>
+                        <div class="admin-fields">
+                            <label><span id="admin-name-label">Nombre completo *</span><input name="nombre" required maxlength="150" autocomplete="off" placeholder="Ej. Ana López García"></label>
+                            <label data-campo="alumno">Correo de acceso *<input name="correo" type="email" maxlength="254" autocomplete="off" placeholder="nombre@ejemplo.com" aria-describedby="admin-email-help"><small id="admin-email-help">El alumno usará este correo para iniciar sesión. No debe estar registrado en otra cuenta.</small></label>
+                        </div>
+                    </fieldset>
+                    <fieldset data-campo="password" class="admin-form-group">
+                        <legend>Contraseña inicial</legend>
+                        <div class="admin-fields">
+                            <label>Contraseña *<input name="password" type="password" minlength="10" autocomplete="new-password" aria-describedby="admin-password-help"><small id="admin-password-help">Usa al menos 10 caracteres. Comparte la contraseña de forma privada con el alumno.</small></label>
+                        </div>
+                    </fieldset>
+                    <fieldset data-campo="alumno" class="admin-form-group">
+                        <legend>Asignación de grupo</legend>
+                        <p id="admin-group-help">Elige el grupo al que pertenece el alumno. Puedes dejarlo sin grupo y asignarlo después.</p>
+                        <div class="admin-fields">
+                            <label>Grupo académico (opcional)<select name="id_grupo" aria-describedby="admin-group-help"><option value="">Sin grupo</option></select></label>
+                        </div>
+                    </fieldset>
+                    <fieldset data-campo="grupo" class="admin-form-group">
+                        <legend>Periodo</legend>
+                        <p>Selecciona el semestre y el año al que pertenece el grupo.</p>
+                        <div class="admin-fields">
+                            <label>Semestre *<select name="semestre"><option value="">Selecciona un semestre</option><option value="1">Enero–Junio</option><option value="2">Agosto–Diciembre</option></select></label>
+                            <label>Año *<select name="anio"><option value="">Selecciona un año</option></select></label>
+                        </div>
+                    </fieldset>
+                    <fieldset class="admin-form-group">
+                        <legend id="admin-status-title">Acceso a la cuenta</legend>
+                        <div class="admin-fields">
+                            <label>Estado *<select name="activo" aria-describedby="admin-status-help"><option value="true">Activo</option><option value="false">Inactivo</option></select></label>
+                        </div>
+                        <p id="admin-status-help" class="admin-status-help"></p>
+                    </fieldset>
+                </div>
+                <p id="admin-form-message" role="status" aria-live="polite"></p>
+                <div class="admin-actions"><button class="submit-button" type="submit" id="admin-guardar">Registrar alumno</button><button type="button" id="admin-cancelar">Cancelar y volver a la lista</button></div>
+            </form>
+        </section>
+        <section id="admin-ayuda" class="section-content" hidden aria-labelledby="admin-ayuda-title">
+            <div class="admin-help-heading"><p class="eyebrow">GUÍA DE USO</p><h2 id="admin-ayuda-title">Ayuda del administrador</h2><p>Abre el tema que necesitas. Si vas a comenzar un semestre, crea primero los grupos y después registra a sus alumnos.</p></div>
+            <div class="admin-help-links"><a href="#grupos">Ir a Grupos →</a><a href="#cuentas">Ir a Cuentas de alumnos →</a></div>
+            <div class="help-topics">
+                <details class="valuation-group help-topic" open><summary>1. Registrar y editar alumnos</summary><div class="help-topic-content"><ol><li>Abre <strong>Cuentas de alumnos</strong> y pulsa <strong>Registrar alumno</strong>.</li><li>Completa <strong>Datos del alumno</strong> y define su <strong>Contraseña inicial</strong>. Cada correo debe ser único.</li><li>En <strong>Asignación de grupo</strong>, elige un grupo activo o deja Sin grupo.</li><li>Revisa <strong>Acceso a la cuenta</strong>, pulsa <strong>Registrar alumno</strong> y espera la confirmación.</li></ol><p>Para modificar una cuenta, pulsa <strong>Editar alumno</strong> en su fila y termina con <strong>Guardar cambios</strong>. La contraseña inicial solo se captura al registrar la cuenta. <strong>Cancelar y volver a la lista</strong> cierra el formulario sin guardar.</p></div></details>
+                <details class="valuation-group help-topic"><summary>2. Administrar grupos</summary><div class="help-topic-content"><ol><li>En <strong>Grupos</strong>, pulsa <strong>Crear grupo</strong>.</li><li>Escribe el nombre en <strong>Datos del grupo</strong>.</li><li>En <strong>Periodo</strong>, selecciona el semestre y el año.</li><li>Revisa <strong>Disponibilidad del grupo</strong> y pulsa <strong>Crear grupo</strong>.</li></ol><p>No se permite repetir la misma combinación de nombre, semestre y año. Usa <strong>Editar grupo</strong> para modificarlo y <strong>Ver alumnos</strong> para consultar sus integrantes. Cada alumno puede pertenecer a un grupo a la vez; las nuevas asignaciones requieren un grupo activo.</p></div></details>
+                <details class="valuation-group help-topic"><summary>3. Dar de baja y reactivar</summary><div class="help-topic-content"><ol><li>Localiza al alumno o grupo en la tabla y pulsa <strong>Dar de baja</strong>.</li><li>Revisa el nombre y las consecuencias que aparecen en la confirmación. Cancela si seleccionaste otro registro.</li><li>Confirma y espera el mensaje de éxito. El estado cambiará a <strong>Inactivo</strong>.</li></ol><p>La baja conserva los datos y el historial. Un alumno inactivo no puede iniciar sesión y su sesión abierta dejará de autorizar operaciones en la siguiente solicitud al servidor. Puedes encontrarlo seleccionando <strong>Inactivo</strong> en el filtro de estado y pulsando Buscar.</p><p>Dar de baja un grupo conserva sus integrantes y no desactiva sus cuentas. El grupo ya no admite nuevas asignaciones. Para volver a habilitar un alumno o grupo, pulsa <strong>Reactivar</strong> y confirma. También puedes cambiar el estado desde el formulario de edición.</p></div></details>
+                <details class="valuation-group help-topic"><summary>4. Buscar y resolver problemas</summary><div class="help-topic-content"><p>Filtra alumnos por nombre o correo, grupo y estado. Usa Anterior y Siguiente para recorrer la lista.</p><p>Si otro administrador cambió un registro, cancela la edición, vuelve a buscar y ábrelo de nuevo. Si falla la conexión, puedes reintentar la consulta. Una sesión expirada requiere iniciar sesión otra vez.</p><p>No compartas contraseñas ni capturas de información personal. Usa Cerrar sesión al terminar, especialmente en equipos compartidos.</p></div></details>
+            </div>
+        </section>
         <footer class="main-footer">
             <div class="footer-brand">
                 <span class="footer-brand-dot"></span>
@@ -167,5 +245,15 @@
             <span class="footer-system">Sistema de expedientes pediátricos</span>
         </footer>
     </main>
+    <dialog id="admin-confirmacion" class="admin-confirmacion" aria-labelledby="admin-confirmacion-title" aria-describedby="admin-confirmacion-detail">
+        <form method="dialog">
+            <h2 id="admin-confirmacion-title">Confirmar cambio de estado</h2>
+            <p id="admin-confirmacion-detail"></p>
+            <div class="admin-actions">
+                <button type="submit" value="cancelar" autofocus>Cancelar</button>
+                <button type="submit" value="confirmar" class="submit-button" id="admin-confirmacion-aceptar">Confirmar</button>
+            </div>
+        </form>
+    </dialog>
 </body>
 </html>

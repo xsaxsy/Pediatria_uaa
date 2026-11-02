@@ -1,7 +1,16 @@
 import { verificarSesion } from "../services/sessionService.js";
+import { obtenerSql } from "../config/database.js";
 
-export async function verificarAutenticacion(req, res) {
-    const cookies = req.headers.cookie ?? "";
+async function consultarCuentaActiva(id) {
+    const sql = obtenerSql();
+    const [cuenta] = await sql`SELECT u.id_usuario, r.nombre AS rol
+        FROM usuario u JOIN rol r USING (id_rol)
+        WHERE u.id_usuario = ${id} AND u.activo = TRUE`;
+    return cuenta ?? null;
+}
+
+export async function verificarAutenticacion(req, res, { verificarToken = verificarSesion, consultarCuenta = consultarCuentaActiva } = {}) {
+    const cookies = req.headers?.cookie ?? "";
 
     const cookieSesion = cookies
         .split(";")
@@ -18,9 +27,12 @@ export async function verificarAutenticacion(req, res) {
     }
 
     const token = cookieSesion.slice("session=".length);
-    const sesion = await verificarSesion(token);
+    const sesion = await verificarToken(token);
+    const idValido = sesion && /^[1-9]\d*$/.test(String(sesion.id_usuario)) && Number(sesion.id_usuario) <= 2147483647;
+    // El token puede seguir vigente después de una baja: comprobar la cuenta en cada solicitud.
+    const cuenta = idValido ? await consultarCuenta(Number(sesion.id_usuario)) : null;
 
-    if (!sesion) {
+    if (!sesion || !cuenta || cuenta.rol !== sesion.rol) {
         res.setHeader(
             "Set-Cookie",
             "session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0"
@@ -28,7 +40,7 @@ export async function verificarAutenticacion(req, res) {
 
         res.status(401).json({
             success: false,
-            message: "Tu sesión no es válida o ha expirado"
+            message: "Tu sesión expiró o tu cuenta ya no tiene acceso. Inicia sesión nuevamente o consulta al administrador."
         });
 
         return null;
