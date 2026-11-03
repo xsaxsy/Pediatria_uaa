@@ -24,18 +24,22 @@
                     <br>
                     <label for="password">Contraseña: </label>
                     <br>
-                    <input type="password" id="password" name="password" autocomplete="current-password" placeholder="Ingresa tu contraseña" required>
+                    <div style="position: relative; display: flex; align-items: center;">
+                    <input type="password" id="password" name="password" autocomplete="current-password" placeholder="Ingresa tu contraseña" required style="width: 100%; padding-right: 40px;">
+                        
+                    <button type="button" id="btn-toggle-password" style="position: absolute; right: 10px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;">
+                    <svg id="icono-ojo" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    </button>
+                    </div>
                     <br>
-
                     <p id="mensaje-error" role="alert" aria-live="polite"></p>
                     
                     <button type="submit" id="btn-login">Iniciar sesión</button>
                 </form>
 
-                <p class="registro-login">
-                ¿Eres usuario nuevo?
-                <a href="signin.html">Regístrate</a>
-                </p>
             </section>
         </main>
     </body>
