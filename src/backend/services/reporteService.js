@@ -21,7 +21,7 @@ export async function generarExcelValoraciones(registros) {
             key: "fecha_valoracion",
             width: 28
         },
-        { header: "Estado", key: "estado", width: 18 },
+        { header: "Estado de calificación", key: "estado", width: 25 },
         { header: "Alumno", key: "alumno", width: 35 },
         {
             header: "Correo del alumno",
@@ -37,7 +37,7 @@ export async function generarExcelValoraciones(registros) {
             fecha_nacimiento: registro.fecha_nacimiento ?? "",
             sexo: registro.sexo ?? "",
             fecha_valoracion: registro.fecha_valoracion ?? "",
-            estado: registro.estado ?? "",
+            estado: registro.calificacion === null || registro.calificacion === undefined ? "Pendiente de calificar" : "Calificado",
             alumno: registro.alumno ?? "",
             correo_alumno: registro.correo_alumno ?? ""
         });

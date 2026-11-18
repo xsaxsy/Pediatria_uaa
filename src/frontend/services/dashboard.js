@@ -1,5 +1,33 @@
 const etiquetaRol = document.querySelector("#rol-usuario");
 const botonCerrarSesion = document.querySelector("#btn-cerrar-sesion");
+let valoracionEnCurso = false;
+const formularioValoracion = document.querySelector("#valuation-form");
+const inicioValoracion = document.querySelector("#valuation-start");
+
+document.querySelector("#valuation-begin")?.addEventListener("click", () => {
+    valoracionEnCurso = true;
+    inicioValoracion.hidden = true;
+    formularioValoracion.hidden = false;
+    formularioValoracion.querySelector("input, select, textarea")?.focus();
+});
+
+// Las salidas dentro de la aplicación se bloquean hasta guardar la valoración.
+document.addEventListener("click", (evento) => {
+    if (!valoracionEnCurso) return;
+    const enlace = evento.target.closest("a[href]");
+    const cerrarSesion = evento.target.closest("#btn-cerrar-sesion");
+    if (cerrarSesion || (enlace && enlace.getAttribute("href") !== "#valoraciones")) {
+        evento.preventDefault();
+        evento.stopImmediatePropagation();
+        alert("Completa y guarda la valoración antes de salir.");
+    }
+}, true);
+
+window.addEventListener("beforeunload", (evento) => {
+    if (!valoracionEnCurso) return;
+    evento.preventDefault();
+    evento.returnValue = "";
+});
 
 const botonMenu = document.querySelector("#btn-menu");
 const botonCerrarMenu = document.querySelector("#btn-cerrar-menu");
@@ -628,7 +656,10 @@ document.querySelector("#valuation-form")?.addEventListener("submit", async (eve
         const respuesta = await fetch("/api/valoraciones", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pacienteNombre: valores.get("pacienteNombre"), tutorNombre: valores.get("tutorNombre"), tutorParentesco: valores.get("tutorParentesco"), tutorTelefono: valores.get("tutorTelefono"), fechaValoracion: valores.get("fechaValoracion"), fechaNacimiento: valores.get("fechaNacimiento"), sexo: valores.get("sexo"), domicilio: valores.get("domicilio"), respuestasPorSeccion, etiquetas, tiposRespuesta }) });
         const resultado = await respuesta.json();
         if (!respuesta.ok || !resultado.success) throw new Error(resultado.message || "No se pudo guardar la valoración.");
+        valoracionEnCurso = false;
         formulario.reset();
+        formulario.hidden = true;
+        inicioValoracion.hidden = false;
         formulario.querySelector('[name="fechaValoracion"]').value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
         mensaje.textContent = "Valoración guardada correctamente.";
     } catch (error) {
@@ -639,6 +670,11 @@ document.querySelector("#valuation-form")?.addEventListener("submit", async (eve
 });
 
 function mostrarPanelValoraciones() {
+    if (valoracionEnCurso && window.location.hash !== "#valoraciones") {
+        window.location.hash = "#valoraciones";
+        alert("Completa y guarda la valoración antes de salir.");
+        return;
+    }
     const hash = window.location.hash;
     const panelValoraciones = document.querySelector("#valoraciones-panel");
     const panelExpedientes = document.querySelector("#expedientes-panel");

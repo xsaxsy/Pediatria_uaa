@@ -35,15 +35,17 @@ export function validarFiltros(query = {}, rol = "Alumno") {
     const buscar = texto(query.buscar, "Búsqueda", 150);
     const sexo = texto(query.sexo, "Sexo", 20);
     const estado = texto(query.estado, "Estado", 50);
+    const estadoCalificacion = texto(query.estado_calificacion, "Estado de calificación", 20);
     const desde = fecha(query.desde, "Desde");
     const hasta = fecha(query.hasta, "Hasta");
     if (sexo && !["Masculino", "Femenino", "Otro"].includes(sexo)) invalido("Sexo inválido.");
     if (estado && !["borrador", "completado", "validado"].includes(estado)) invalido("Estado inválido.");
+    if (estadoCalificacion && !["pendiente", "calificado"].includes(estadoCalificacion)) invalido("Estado de calificación inválido.");
     if (desde && hasta && desde > hasta) invalido("La fecha inicial debe ser anterior o igual a la final.");
     const pagina = query.pagina === undefined ? 1 : validarId(query.pagina);
     const limite = query.limite === undefined ? 20 : validarId(query.limite);
     if (limite > 100) invalido("El límite máximo es 100.");
-    const filtros = { buscar, sexo, estado, desde, hasta, pagina, limite, offset: (pagina - 1) * limite };
+    const filtros = { buscar, sexo, estado, estadoCalificacion, desde, hasta, pagina, limite, offset: (pagina - 1) * limite };
     if (rol === "Docente") {
         filtros.alumno = texto(query.alumno, "Alumno", 254);
         filtros.idAlumno = query.id_alumno === undefined || query.id_alumno === "" ? "" : String(validarId(query.id_alumno));

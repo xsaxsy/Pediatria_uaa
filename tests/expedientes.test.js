@@ -340,6 +340,7 @@ test("navegación alterna expedientes, valoración e inicio sin superponer panel
         classList: { toggle() {} }, setAttribute() {}, removeAttribute() {}
     }));
     const context = vm.createContext({
+        valoracionEnCurso: false,
         window: { location: { hash: "#expedientes" } },
         document: {
             querySelector(selector) {
@@ -413,7 +414,7 @@ test("panel docente sin Mis grupos consulta por alumno y muestra al autor", asyn
     vm.runInContext(await readFile(new URL("../src/frontend/services/expedientes.js", import.meta.url), "utf8"), context);
     const terminar = () => new Promise((resolve) => setImmediate(resolve));
     await terminar();
-    assert.equal(ids["#expedientes-resultados"].children[0].children.length, 8);
+    assert.equal(ids["#expedientes-resultados"].children[0].children.length, 10);
     assert.match(ids["#expedientes-resultados"].children[0].children[6].textContent, /Prueba.*ID 8/);
     ids["#expedientes-filtros"].events.submit({ preventDefault() {} });
     await terminar();
@@ -463,7 +464,7 @@ test("pantalla consulta resultados, pagina y carga detalle sin interpretar HTML 
     assert.equal(fila.children[1].textContent, nombre);
     assert.equal(ids["#expedientes-anterior"].disabled, true);
     assert.equal(ids["#expedientes-siguiente"].disabled, false);
-    const boton = fila.children[6].children[0];
+    const boton = fila.children[8].children[0];
     await boton.events.click();
     await terminar();
     assert.equal(ids["#expediente-detalle"].hidden, false);
@@ -513,7 +514,7 @@ test("pantalla permite editar y exige confirmación antes de eliminar", async ()
     vm.runInContext(codigo, context);
     const terminar = () => new Promise((resolve) => setImmediate(resolve));
     await terminar();
-    const acciones = () => ids["#expedientes-resultados"].children[0].children[6].children;
+    const acciones = () => ids["#expedientes-resultados"].children[0].children[8].children;
     await acciones()[1].events.click();
     const editor = ids["#expediente-detalle"].children[1];
     const cantidad = editor.children[2].children[1];
@@ -528,7 +529,7 @@ test("pantalla permite editar y exige confirmación antes de eliminar", async ()
     assert.equal(mutations.length, 1, "cancelar confirmación no debe borrar");
     confirmar = true;
     const botones = ids["#expediente-detalle"].children;
-    await botones.at(-1).events.click();
+    await botones.at(-1).children.at(-1).events.click();
     await terminar();
     assert.equal(mutations[1].method, "DELETE");
     assert.deepEqual(mutations[1].body, { version: "123" });

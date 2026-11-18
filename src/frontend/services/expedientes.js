@@ -15,6 +15,65 @@
     let consultaDetalle;
     let guardando = false;
 
+    function nota(valor, promedio = false) {
+        return valor === null || valor === undefined ? "Pendiente" : promedio ? Number(valor).toLocaleString("es-MX", { maximumFractionDigits: 2 }) : String(valor);
+    }
+
+    function estadoCalificacion(valor) {
+        const calificado = valor !== null && valor !== undefined;
+        const etiqueta = nodo("span", calificado ? "Calificado" : "Pendiente de calificar");
+        etiqueta.className = `grade-status ${calificado ? "grade-status-done" : "grade-status-pending"}`;
+        return etiqueta;
+    }
+
+    function evaluacion(exp) {
+        const seccion = document.createElement("section");
+        seccion.className = "detail-card detail-evaluation";
+        seccion.append(nodo("h4", "Evaluación del desempeño"),
+            nodo("p", `Calificación: ${nota(exp.calificacion)} · Promedio del alumno: ${nota(exp.promedio_alumno, true)}`),
+            nodo("p", `Comentario docente: ${exp.observaciones_supervisor || "Sin comentario"}`));
+        if (esDocente) {
+            const editor = document.createElement("form");
+            editor.className = "valuation-form";
+            const etiquetaNota = nodo("label", "Calificación (0 a 10)");
+            etiquetaNota.className = "valuation-field";
+            const campoNota = document.createElement("input");
+            campoNota.type = "number"; campoNota.min = "0"; campoNota.max = "10"; campoNota.step = "any"; campoNota.required = true;
+            campoNota.value = exp.calificacion ?? "";
+            etiquetaNota.append(campoNota);
+            const etiquetaComentario = nodo("label", "Comentario sobre el desempeño");
+            etiquetaComentario.className = "valuation-field";
+            const comentario = document.createElement("textarea");
+            comentario.maxLength = 5000; comentario.rows = 3; comentario.value = exp.observaciones_supervisor || "";
+            etiquetaComentario.append(comentario);
+            const tieneCalificacion = exp.calificacion !== null && exp.calificacion !== undefined;
+            const boton = nodo("button", tieneCalificacion ? "Modificar evaluación" : "Guardar evaluación");
+            boton.type = "submit"; boton.className = "submit-button";
+            const estado = nodo("p", ""); estado.setAttribute("role", "status");
+            editor.append(etiquetaNota, etiquetaComentario, boton, estado);
+            editor.addEventListener("submit", async (evento) => {
+                evento.preventDefault();
+                if (guardando || !editor.reportValidity()) return;
+                if (tieneCalificacion && !window.confirm(`¿Estás seguro de modificar la evaluación? La calificación cambiará de ${nota(exp.calificacion)} a ${campoNota.value}.`)) return;
+                guardando = true; boton.disabled = true; estado.textContent = "Guardando evaluación…";
+                try {
+                    const respuesta = await fetch(`/api/evaluaciones?id=${encodeURIComponent(exp.id_valoracion)}`, {
+                        method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ version: exp.version, calificacion: Number(campoNota.value), comentario: comentario.value })
+                    });
+                    const datos = await respuesta.json();
+                    if (!respuesta.ok || !datos.success) throw new Error(datos.message || "No se pudo guardar la evaluación.");
+                    guardando = false;
+                    await cargar();
+                    mensaje.textContent = datos.message;
+                } catch (error) { estado.textContent = error.message; }
+                finally { guardando = false; boton.disabled = false; }
+            });
+            seccion.append(editor);
+        }
+        return seccion;
+    }
+
     function nodo(tag, contenido) {
         const elemento = document.createElement(tag);
         elemento.textContent = contenido ?? "Sin dato";
@@ -178,25 +237,77 @@
             cerrar.type = "button";
             cerrar.className = "valuation-back";
             cerrar.addEventListener("click", () => { detalle.hidden = true; detalle.replaceChildren(); });
-            detalle.append(cerrar, nodo("p", `Valoración: ${exp.fecha_valoracion} · ${exp.estado}`),
-                nodo("p", `Nacimiento: ${exp.fecha_nacimiento} · Sexo: ${exp.sexo}`),
-                nodo("p", `Domicilio: ${exp.domicilio || "Sin dato"}`), nodo("h4", "Tutores actuales"));
-            if (esDocente) detalle.append(nodo("p", `Alumno responsable: ${exp.alumno} · ${exp.correo_alumno}`));
-            const tutores = nodo("ul", "");
+            cerrar.className = "valuation-back detail-close";
+            detalle.append(cerrar);
+            const generales = document.createElement("details");
+            generales.className = "detail-card detail-answers";
+            generales.append(nodo("summary", "Datos generales"));
+            const datosGenerales = document.createElement("dl");
+            datosGenerales.className = "detail-grid";
+            const agregarDato = (lista, etiqueta, valor) => {
+                const item = document.createElement("div");
+                item.append(nodo("dt", etiqueta), nodo("dd", valor === null || valor === undefined || valor === "" ? "Sin dato" : valor));
+                lista.append(item);
+            };
+            agregarDato(datosGenerales, "Fecha de valoración", exp.fecha_valoracion);
+            const estado = document.createElement("div");
+            const valorEstado = document.createElement("dd");
+            valorEstado.append(estadoCalificacion(exp.calificacion));
+            estado.append(nodo("dt", "Estado de calificación"), valorEstado);
+            datosGenerales.append(estado);
+            agregarDato(datosGenerales, "Fecha de nacimiento", exp.fecha_nacimiento);
+            agregarDato(datosGenerales, "Sexo", exp.sexo);
+            agregarDato(datosGenerales, "Domicilio", exp.domicilio);
+            if (esDocente) agregarDato(datosGenerales, "Alumno responsable", `${exp.alumno} · ${exp.correo_alumno}`);
+            generales.append(datosGenerales);
+            detalle.append(generales);
+            detalle.append(evaluacion(exp));
+            const tutoresSeccion = document.createElement("details");
+            tutoresSeccion.className = "detail-card detail-answers";
+            tutoresSeccion.append(nodo("summary", "Datos del tutor o informante"));
+            const tutores = document.createElement("ul");
+            tutores.className = "detail-tutors";
             for (const tutor of exp.tutores) {
                 tutores.append(nodo("li", `${tutor.nombre} · ${tutor.parentesco} · ${tutor.telefono || "Sin teléfono"}`));
             }
-            detalle.append(tutores);
-            let seccion;
+            if (!exp.tutores.length) tutores.append(nodo("li", "Sin tutores registrados."));
+            tutoresSeccion.append(tutores);
+            detalle.append(tutoresSeccion);
+            const bloques = new Map();
+            const grupos = typeof gruposFormatoFisico !== "undefined" ? gruposFormatoFisico : [];
+            const definiciones = typeof seccionesValoracion !== "undefined" ? seccionesValoracion : [];
+            function grupoRespuesta(respuesta) {
+                const indice = definiciones.findIndex((item) => item.titulo === respuesta.seccion);
+                if (indice < 0) return "";
+                const campo = definiciones[indice].campos.find(([clave, etiqueta]) =>
+                    respuesta.pregunta === clave || respuesta.pregunta === etiqueta || respuesta.pregunta.startsWith(`${etiqueta} ·`));
+                if (!campo) return "Otros datos de la sección";
+                return grupos[indice]?.find((grupo) => grupo.campos.includes(campo[0]))?.titulo || "Otros datos de la sección";
+            }
             for (const respuesta of exp.respuestas) {
-                if (seccion !== respuesta.seccion) {
-                    seccion = respuesta.seccion;
-                    detalle.append(nodo("h4", seccion));
+                if (!bloques.has(respuesta.seccion)) {
+                    const bloque = document.createElement("details");
+                    bloque.className = "detail-card detail-answers valuation-group";
+                    bloque.append(nodo("summary", respuesta.seccion));
+                    bloques.set(respuesta.seccion, { bloque, grupos: new Map() });
+                    detalle.append(bloque);
                 }
-                detalle.append(nodo("p", `${respuesta.pregunta}: ${respuesta.valor ?? "Sin respuesta"}`));
+                const contenedor = bloques.get(respuesta.seccion);
+                const grupo = grupoRespuesta(respuesta);
+                if (!contenedor.grupos.has(grupo)) {
+                    const subseccion = document.createElement("div");
+                    subseccion.className = "detail-subsection";
+                    if (grupo) subseccion.append(nodo("h4", grupo));
+                    const lista = document.createElement("dl");
+                    lista.className = "detail-grid";
+                    subseccion.append(lista);
+                    contenedor.bloque.append(subseccion);
+                    contenedor.grupos.set(grupo, lista);
+                }
+                const etiquetasAnteriores = { estado_0: "Estado de la sección", estado_1: "Estado de la sección", paisDomicilio: "País de domicilio" };
+                agregarDato(contenedor.grupos.get(grupo), etiquetasAnteriores[respuesta.pregunta] || respuesta.pregunta, respuesta.valor ?? "Sin respuesta");
             }
             if (!exp.respuestas.length) detalle.append(nodo("p", "Sin respuestas registradas."));
-            if (exp.observaciones_supervisor) detalle.append(nodo("p", `Observaciones del supervisor: ${exp.observaciones_supervisor}`));
             const editarBoton = nodo("button", "Editar valoración");
             editarBoton.type = "button";
             editarBoton.className = "valuation-back";
@@ -205,7 +316,10 @@
             eliminarBoton.type = "button";
             eliminarBoton.className = "valuation-back";
             eliminarBoton.addEventListener("click", () => confirmarEliminacion(exp, eliminarBoton));
-            detalle.append(editarBoton, eliminarBoton);
+            const acciones = document.createElement("div");
+            acciones.className = "detail-actions";
+            acciones.append(editarBoton, eliminarBoton);
+            detalle.append(acciones);
             detalle.focus();
             if (accion === "eliminar") confirmarEliminacion(exp, eliminarBoton);
         } catch (error) {
@@ -235,10 +349,14 @@
             for (const registro of datos.registros) {
                 const fila = document.createElement("tr");
                 for (const valor of [registro.folio, registro.nombre, registro.sexo,
-                    registro.fecha_nacimiento, registro.fecha_valoracion, registro.estado]) {
+                    registro.fecha_nacimiento, registro.fecha_valoracion]) {
                     fila.append(nodo("td", valor));
                 }
+                const celdaEstado = document.createElement("td");
+                celdaEstado.append(estadoCalificacion(registro.calificacion));
+                fila.append(celdaEstado);
                 if (esDocente) fila.append(nodo("td", `${registro.alumno} · ${registro.correo_alumno} · ID ${registro.id_alumno}`));
+                fila.append(nodo("td", nota(registro.calificacion)), nodo("td", nota(registro.promedio_alumno, true)));
                 const celda = document.createElement("td");
                 const boton = nodo("button", "Ver valoración");
                 boton.type = "button";
@@ -270,21 +388,6 @@
 
     botonReportes?.addEventListener("click", async () => {
 
-                const desde = form.elements.desde.value;
-        const hasta = form.elements.hasta.value;
-
-        if (!form.reportValidity()) {
-            mensajeReportes.textContent =
-                "Revisa los filtros antes de exportar.";
-            return;
-        }
-
-        if (desde && hasta && desde > hasta) {
-            mensajeReportes.textContent =
-                "La fecha inicial debe ser anterior o igual a la final.";
-            return;
-        }
-        
         botonReportes.disabled = true;
         mensajeReportes.textContent = "Generando Excel…";
 

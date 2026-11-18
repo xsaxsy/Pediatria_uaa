@@ -7,7 +7,9 @@ CREATE TABLE IF NOT EXISTS valoracion (
     estado VARCHAR(50) NOT NULL DEFAULT 'completado', -- API actual; futuros estados: borrador, validado
     nivel_riesgo VARCHAR(30) NULL, -- Bajo, Medio, Alto (Semáforo)
     observaciones_supervisor TEXT NULL, -- Retroalimentación docente en validación
+    calificacion NUMERIC NULL, -- Calificación docente de 0 a 10; NULL significa pendiente
     validado_por INTEGER NULL, -- Profesor/Supervisor que valida
+    CONSTRAINT valoracion_calificacion_rango CHECK (calificacion IS NULL OR (calificacion >= 0 AND calificacion <= 10)),
     CONSTRAINT fk_val_paciente FOREIGN KEY (id_paciente) REFERENCES paciente(id_paciente) ON DELETE RESTRICT,
     CONSTRAINT fk_val_usuario FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) ON DELETE RESTRICT,
     CONSTRAINT fk_val_validador FOREIGN KEY (validado_por) REFERENCES usuario(id_usuario) ON DELETE SET NULL
