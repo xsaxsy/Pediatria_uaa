@@ -3,14 +3,15 @@ import { obtenerSql } from "../config/database.js";
 // Alumno: solo autoría. Docente: acceso global autorizado por la política actual.
 // Los datos vigentes de usuario/rol se verifican también en cada consulta.
 export async function listarExpedientes(idUsuario, filtros, sql = obtenerSql(), rol = "Alumno") {
-    const { buscar, sexo, estado, desde, hasta, limite, offset, alumno = "", idAlumno = "" } = filtros;
+    const { buscar, sexo, estado, estadoCalificacion = "", desde, hasta, limite, offset, alumno = "", idAlumno = "" } = filtros;
     const patronAlumno = `%${alumno.replace(/[\\%_]/g, "\\$&")}%`;
     const patron = `%${buscar.replace(/[\\%_]/g, "\\$&")}%`;
     const filas = await sql`
         WITH filtradas AS (
             SELECT v.id_valoracion, p.id_paciente, p.folio, p.nombre,
                 p.fecha_nacimiento::TEXT, p.sexo,
-                v.fecha_valoracion::TEXT, v.estado,
+                v.fecha_valoracion::TEXT, v.estado, (to_jsonb(v)->>'calificacion')::NUMERIC AS calificacion,
+                (SELECT AVG((to_jsonb(v2)->>'calificacion')::NUMERIC) FROM valoracion v2 WHERE v2.id_usuario = v.id_usuario) AS promedio_alumno,
                 alumno.id_usuario AS id_alumno, alumno.nombre AS alumno, alumno.correo AS correo_alumno
             FROM valoracion v
             JOIN paciente p ON p.id_paciente = v.id_paciente
@@ -24,6 +25,7 @@ export async function listarExpedientes(idUsuario, filtros, sql = obtenerSql(), 
                 AND (${buscar} = '' OR p.nombre ILIKE ${patron} OR p.folio ILIKE ${patron})
                 AND (${sexo} = '' OR p.sexo = ${sexo})
                 AND (${estado} = '' OR v.estado = ${estado})
+                AND (${estadoCalificacion} = '' OR (${estadoCalificacion} = 'calificado' AND to_jsonb(v)->>'calificacion' IS NOT NULL) OR (${estadoCalificacion} = 'pendiente' AND to_jsonb(v)->>'calificacion' IS NULL))
                 AND (${desde} = '' OR v.fecha_valoracion >= NULLIF(${desde}, '')::DATE)
                 AND (${hasta} = '' OR v.fecha_valoracion <= NULLIF(${hasta}, '')::DATE)
         )
@@ -38,7 +40,9 @@ export async function listarExpedientes(idUsuario, filtros, sql = obtenerSql(), 
 export async function consultarValoracion(idUsuario, idValoracion, sql = obtenerSql(), rol = "Alumno") {
     const filas = await sql`
         SELECT v.id_valoracion, v.xmin::TEXT AS version, v.fecha_valoracion::TEXT, v.estado, v.nivel_riesgo,
-            v.observaciones_supervisor, alumno.nombre AS alumno, alumno.correo AS correo_alumno,
+            v.observaciones_supervisor, (to_jsonb(v)->>'calificacion')::NUMERIC AS calificacion,
+            (SELECT AVG((to_jsonb(v2)->>'calificacion')::NUMERIC) FROM valoracion v2 WHERE v2.id_usuario = v.id_usuario) AS promedio_alumno,
+            alumno.nombre AS alumno, alumno.correo AS correo_alumno,
             p.id_paciente, p.folio, p.nombre,
             p.fecha_nacimiento::TEXT, p.sexo, p.domicilio,
             COALESCE((SELECT jsonb_agg(jsonb_build_object(
